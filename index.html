@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Projeto RPG · V1</title>
+<meta name="description" content="Documento de design da V1. Leia, vote e diga o que mudaria.">
+<meta property="og:title" content="Projeto RPG · Documento da V1">
+<meta property="og:description" content="RPG tático em pixel art. Leia as 22 decisões, vote no nome e nas raças e mande sua opinião pelo WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1310;
+  --bg-2:#131a15;
+  --panel:#18211b;
+  --panel-2:#1f2b23;
+  --line:#2f3f34;
+  --ink:#efe9da;
+  --ink-dim:#bdb6a4;
+  --ink-faint:#a8a293;
+  --gold:#e8bd62;
+  --gold-ink:#1b1408;
+  --rune:#7fdcc6;
+  --blue:#6fa9ff;
+  --red:#ef7a62;
+  --night:#24305a;
+  --day:#d9b45a;
+  --r-comum:#c4c2b8;
+  --r-raro:#5ea6ff;
+  --r-epico:#b585ff;
+  --r-mvp:#ffaa45;
+  --shadow:4px 4px 0 0 rgba(0,0,0,.45);
+  --pixel:"Pixelify Sans", "Courier New", monospace;
+  --text:"Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--text);font-size:17px;line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+a{color:var(--rune)}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--pixel);font-weight:700;line-height:1.15;letter-spacing:.01em;margin:0}
+h1{font-size:clamp(2.2rem,8vw,3.4rem);color:var(--gold)}
+h2{font-size:1.65rem;color:var(--gold)}
+h3{font-size:1.18rem}
+p{margin:.5em 0}
+small,.dim{color:var(--ink-dim)}
+
+/* topo */
+header.hero{
+  padding:44px 0 28px;
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(127,220,198,.13), transparent 60%),
+    radial-gradient(ellipse at 10% 100%, rgba(232,189,98,.10), transparent 55%),
+    var(--bg-2);
+  border-bottom:2px solid var(--line);
+}
+.kicker{font-family:var(--pixel);color:var(--rune);font-size:.95rem;letter-spacing:.08em;text-transform:uppercase}
+.hero .sub{font-size:1.15rem;color:var(--ink);max-width:34em;margin-top:12px}
+.hero .meta{color:var(--ink-faint);font-size:.9rem;margin-top:6px}
+.steps{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px}
+.steps li{display:flex;gap:12px;align-items:flex-start;background:var(--panel);padding:12px 14px;border:2px solid var(--line);box-shadow:var(--shadow)}
+.steps b.n{font-family:var(--pixel);background:var(--gold);color:var(--gold-ink);min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:1rem}
+.who{margin-top:18px;display:grid;gap:6px}
+.who label{font-weight:800}
+input[type=text],textarea{
+  width:100%;font:inherit;color:var(--ink);background:var(--bg);
+  border:2px solid var(--line);padding:10px 12px;border-radius:0;
+}
+input[type=text]:focus,textarea:focus{outline:3px solid var(--rune);outline-offset:1px;border-color:var(--rune)}
+textarea{min-height:84px;resize:vertical}
+
+/* navegação */
+nav.bar{
+  position:sticky;top:0;z-index:5;background:rgba(14,19,16,.94);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border-bottom:2px solid var(--line);
+}
+nav.bar .wrap{display:flex;align-items:center;gap:10px;height:56px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex:none;font-family:var(--pixel);font-size:.92rem;color:var(--ink);text-decoration:none;padding:6px 10px;border:2px solid var(--line);background:var(--panel)}
+.chips a:focus-visible{outline:3px solid var(--rune)}
+.prog{flex:none;font-family:var(--pixel);font-size:.9rem;color:var(--gold);white-space:nowrap}
+
+/* seções */
+section{padding:36px 0 8px}
+section > .wrap > header{margin-bottom:14px}
+section > .wrap > header p{color:var(--ink-dim);margin-top:6px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;font-size:.9rem;color:var(--ink-dim);align-items:center}
+.tag{font-size:.76rem;text-transform:uppercase;padding:2px 7px;border:2px solid currentColor;letter-spacing:.04em}
+.lg{display:inline-flex;gap:8px;align-items:center}
+.tag.v1{color:var(--rune)}
+.tag.depois{color:var(--ink-faint)}
+
+/* decisões */
+.decision{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:16px;margin:16px 0}
+.decision .top{display:flex;gap:10px;align-items:baseline;justify-content:space-between}
+.decision .id{font-family:var(--pixel);color:var(--gold);font-size:1rem;flex:none}
+.decision h3{flex:1}
+.decision .body{margin-top:6px}
+.decision .body p{color:var(--ink)}
+.answer{margin-top:12px;border-top:2px dashed var(--line);padding-top:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{
+  font:inherit;font-weight:800;color:var(--ink);background:var(--bg);
+  border:2px solid var(--line);padding:11px 8px;cursor:pointer;min-height:46px;
+}
+.seg button:focus-visible{outline:3px solid var(--rune);outline-offset:1px}
+.seg button[aria-pressed=true].ok{background:#1f3b2c;border-color:var(--rune);color:#dffbf2}
+.seg button[aria-pressed=true].mud{background:#3d2a1c;border-color:var(--gold);color:#fff0d0}
+.answer textarea{margin-top:10px;display:none}
+.answer.show-txt textarea{display:block}
+
+/* visuais */
+figure{margin:16px 0 4px;background:var(--bg-2);border:2px solid var(--line);padding:14px}
+figcaption{font-size:.92rem;color:var(--ink-dim);margin-top:10px}
+.ftitle{font-family:var(--pixel);color:var(--rune);font-size:.95rem;margin-bottom:10px;letter-spacing:.03em}
+
+/* mapa */
+.map{display:grid;gap:10px}
+@media (min-width:640px){.map{grid-template-columns:1fr auto 1.2fr auto 1.2fr;align-items:stretch}}
+.node{background:var(--panel-2);border:2px solid var(--line);padding:12px}
+.node h4{margin:0 0 4px;font-family:var(--pixel);font-size:1.05rem;color:var(--ink)}
+.node .lv{font-family:var(--pixel);font-size:.85rem;color:var(--gold)}
+.node ul{margin:8px 0 0;padding-left:18px;font-size:.92rem;color:var(--ink-dim)}
+.node .mvp{color:var(--r-mvp);font-weight:800}
+.link{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-family:var(--pixel)}
+.link::before{content:"▼"}
+@media (min-width:640px){.link::before{content:"▶"}}
+
+/* dia e noite */
+.cycle{position:relative;margin:34px 0 26px}
+.cycle .track{display:flex;height:26px;border:2px solid var(--line)}
+.cycle .seg-d{flex:1;background:var(--day)}
+.cycle .seg-n{flex:1;background:var(--night)}
+.cycle .mk{position:absolute;top:-30px;transform:translateX(-50%);font-family:var(--pixel);font-size:.8rem;color:var(--r-mvp);text-align:center;line-height:1}
+.cycle .mk::after{content:"";display:block;width:2px;height:40px;background:var(--r-mvp);margin:4px auto 0}
+.cycle .ticks{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);margin-top:6px}
+.keys{display:flex;gap:14px;flex-wrap:wrap;font-size:.88rem;color:var(--ink-dim)}
+.sw{display:inline-block;width:14px;height:14px;border:2px solid var(--line);vertical-align:-2px;margin-right:6px}
+
+/* raças e classes */
+.cards{display:grid;gap:12px;margin-top:12px}
+@media (min-width:640px){.cards.two{grid-template-columns:1fr 1fr}}
+.card{background:var(--panel-2);border:2px solid var(--line);padding:14px;display:grid;gap:8px;align-content:start}
+.card .head{display:flex;gap:12px;align-items:center}
+.emb{font-family:var(--pixel);font-weight:700;font-size:1.35rem;width:46px;height:46px;flex:none;display:flex;align-items:center;justify-content:center;border:2px solid rgba(0,0,0,.4);box-shadow:inset -4px -4px 0 rgba(0,0,0,.25), inset 4px 4px 0 rgba(255,255,255,.15)}
+.card h4{margin:0;font-family:var(--pixel);font-size:1.1rem}
+.card .role{font-size:.88rem;color:var(--ink-dim)}
+.credit{font-size:.85rem;color:var(--rune)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border:2px solid var(--line);padding:10px;cursor:pointer}
+.opt input{margin-top:5px;accent-color:var(--gold);width:18px;height:18px;flex:none}
+.opt:has(input:checked){border-color:var(--gold);background:#2a2214}
+.opt:has(input:focus-visible){outline:3px solid var(--rune)}
+.opt b{display:block}
+.opt .neg{display:block;color:var(--ink-dim);font-size:.92rem}
+
+/* ficha */
+.ficha{background:#e9dfc4;color:#2a2116;border:3px solid #6b5432;box-shadow:var(--shadow);padding:14px;font-size:.95rem}
+.ficha h4{font-family:var(--pixel);margin:0;font-size:1.15rem;color:#3d2a12}
+.ficha .who2{color:#5c4a30;font-size:.9rem}
+.ficha .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
+.ficha .at{background:#f6efdc;border:2px solid #6b5432;text-align:center;padding:6px 2px}
+.ficha .at b{display:block;font-family:var(--pixel);font-size:1.4rem;color:#2a2116;line-height:1.1}
+.ficha .at span{font-size:.75rem;font-weight:800;color:#5c4a30}
+.ficha .bars{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ficha .bar{background:#f6efdc;border:2px solid #6b5432;padding:6px 8px;font-weight:800;display:flex;justify-content:space-between}
+.ficha .lbl{font-family:var(--pixel);font-size:.9rem;color:#3d2a12;margin:12px 0 6px}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.slot{background:#f6efdc;border:2px solid #6b5432;padding:6px 8px;font-size:.88rem;line-height:1.3}
+.slot i{font-style:normal;display:block;font-size:.72rem;font-weight:800;color:#7a6440;text-transform:uppercase;letter-spacing:.04em}
+.slot.empty{color:#6e5f45;border-style:dashed}
+.rar{font-weight:800}
+.rar.c{color:#5d5a52}.rar.r{color:#1f62c4}.rar.e{color:#7a3fd1}.rar.m{color:#b86400}
+.grim{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+
+/* combate */
+.gridsvg{width:100%;height:auto;display:block;image-rendering:pixelated}
+.formula{display:grid;gap:6px;font-size:.96rem}
+.formula code{font-family:var(--pixel);font-size:1rem;color:var(--gold);background:var(--panel-2);padding:2px 6px}
+.pa{display:flex;gap:4px;margin:6px 0}
+.pa span{width:22px;height:22px;background:var(--rune);border:2px solid #2a6b5c}
+.pa span.used{background:transparent;border-style:dashed;border-color:var(--line)}
+.bal{display:grid;gap:8px}
+.bal .row{display:grid;grid-template-columns:96px 1fr 44px;gap:8px;align-items:center;font-size:.9rem}
+.bal .tr{position:relative;height:18px;background:var(--panel-2);border:2px solid var(--line)}
+.bal .band{position:absolute;top:0;bottom:0;left:45%;width:10%;background:rgba(127,220,198,.18);border-left:2px dashed var(--rune);border-right:2px dashed var(--rune)}
+.bal .fill{position:absolute;top:2px;bottom:2px;left:0;background:var(--gold)}
+.bal .v{font-family:var(--pixel);color:var(--ink)}
+
+/* progressão */
+.chart{width:100%;height:auto;display:block}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:var(--panel-2);border:2px solid var(--line);padding:8px;text-align:center;font-size:.88rem;color:var(--ink-dim)}
+.stat b{display:block;font-size:1.25rem;color:var(--gold)}
+.chips-r{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chips-r span{font-family:var(--pixel);font-size:.95rem;padding:5px 10px;border:2px solid currentColor;background:var(--bg)}
+.flow{display:grid;gap:8px}
+@media (min-width:640px){.flow{grid-template-columns:1fr auto 1fr auto 1.3fr auto 1fr;align-items:center}}
+.flow .st{background:var(--panel-2);border:2px solid var(--line);padding:10px;font-size:.92rem;text-align:center}
+.flow .st b{display:block;font-family:var(--pixel);color:var(--gold);font-size:1rem}
+.flow .ar{text-align:center;color:var(--ink-faint);font-family:var(--pixel)}
+.flow .ar::before{content:"▼"}
+@media (min-width:640px){.flow .ar::before{content:"▶"}}
+.frag{display:flex;gap:3px;justify-content:center;margin-top:6px}
+.frag span{width:10px;height:10px;background:var(--r-mvp);transform:rotate(45deg)}
+
+/* depois */
+.later{display:grid;gap:8px;margin-top:10px;padding:0;list-style:none}
+.later li{background:var(--panel);border:2px dashed var(--line);padding:10px 12px;color:var(--ink-dim)}
+.later li b{color:var(--ink)}
+
+/* votos e envio */
+.vote{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:16px;margin:16px 0}
+.vote h3{margin-bottom:10px}
+.send{background:linear-gradient(180deg,#1d2a21,#16201a);border:2px solid var(--gold);box-shadow:var(--shadow);padding:18px;margin:16px 0 30px}
+.btns{display:grid;gap:10px;margin-top:12px}
+@media (min-width:640px){.btns{grid-template-columns:2fr 1fr}}
+.btn{font:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid #000;cursor:pointer;min-height:52px;box-shadow:var(--shadow)}
+.btn:focus-visible{outline:3px solid var(--rune);outline-offset:2px}
+.btn.wa{background:#25d366;color:#06240f}
+.btn.cp{background:var(--panel-2);color:var(--ink);border-color:var(--line)}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.45)}
+#preview{margin-top:12px;min-height:210px;font-size:.88rem;font-family:ui-monospace,Menlo,Consolas,monospace}
+.status{min-height:1.4em;margin-top:8px;color:var(--rune);font-weight:800}
+footer{border-top:2px solid var(--line);padding:22px 0 40px;color:var(--ink-faint);font-size:.88rem}
+/* números sempre em fonte legível (a pixelada troca 5 por S e 2 por Z) */
+.decision .id,.prog,.steps b.n,.bal .v,.flow .st b,.ficha .at b,.formula code,.node .lv,.cycle .mk,.tag,.stat b{
+  font-family:var(--text);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:0}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Documento de design · V1</div>
+    <h1>Projeto RPG</h1>
+    <p class="sub">Um RPG tático em pixel art, com regras inspiradas no 3D&amp;T. Queremos a sua opinião antes de escrever a primeira linha de código.</p>
+    <p class="meta">Nome provisório (você vota no fim) · versão 1 · outubro de 2026</p>
+    <ol class="steps">
+      <li><b class="n">1</b><span>Leia as 22 decisões, de D1 a D22. Cada uma é curta.</span></li>
+      <li><b class="n">2</b><span>Marque <b>Concordo</b> ou <b>Mudaria</b>. Se mudaria, conte o quê e por quê.</span></li>
+      <li><b class="n">3</b><span>Vote no nome do jogo e nas opções das raças.</span></li>
+      <li><b class="n">4</b><span>No fim, toque em <b>Enviar pelo WhatsApp</b>. Suas respostas vão numeradas pro Ricardo.</span></li>
+    </ol>
+    <div class="who">
+      <label for="nome">Seu nome</label>
+      <input type="text" id="nome" autocomplete="given-name" placeholder="Como você quer aparecer nas respostas">
+      <small>Pode parar e voltar depois. O que você marcar fica salvo neste aparelho.</small>
+    </div>
+    <div class="legend"><span class="lg"><span class="tag v1">V1</span> entra na primeira versão</span><span class="lg"><span class="tag depois">Depois</span> fica pra próxima</span></div>
+  </div>
+</header>
+
+<nav class="bar" aria-label="Seções">
+  <div class="wrap">
+    <div class="chips">
+      <a href="#base">Base</a>
+      <a href="#mundo">Mundo</a>
+      <a href="#heroi">Herói</a>
+      <a href="#combate">Combate</a>
+      <a href="#progressao">Progressão</a>
+      <a href="#depois">Depois</a>
+      <a href="#votos">Votos</a>
+      <a href="#enviar">Enviar</a>
+    </div>
+    <div class="prog" id="prog" aria-live="polite">0/22</div>
+  </div>
+</nav>
+
+<main>
+
+<section id="base">
+  <div class="wrap">
+    <header><h2>Base</h2><p>Pra quem é, de onde vêm as regras e onde o jogo roda.</p></header>
+
+    <article class="decision" data-id="D1">
+      <div class="top"><span class="id">D1</span><h3>Pra quem é</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Projeto de hobby, pra jogar em família e com amigos. Feito com capricho, pra qualquer pessoa poder jogar depois.</p></div>
+    </article>
+
+    <article class="decision" data-id="D2">
+      <div class="top"><span class="id">D2</span><h3>Regras inspiradas no 3D&amp;T</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Cinco atributos: <b>Força (F)</b>, <b>Habilidade (H)</b>, <b>Resistência (R)</b>, <b>Armadura (A)</b> e <b>Poder de Fogo (PdF)</b>. Vida e Mana valem R × 5.</p>
+        <p>O 3D&amp;T é só a origem da ideia. O nome, o mundo e as histórias são nossos.</p>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D3">
+      <div class="top"><span class="id">D3</span><h3>Onde roda</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>No navegador, sem instalar nada, numa página do itch.io com senha. Só entra quem tiver o link.</p>
+        <p>O save fica no navegador, com um botão de exportar pra ninguém perder progresso. Dá pra jogar 100% no mouse, com botões grandes. Feito no Godot 4, um motor de jogos grátis.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="mundo">
+  <div class="wrap">
+    <header><h2>Mundo</h2><p>Onde a história acontece e como ele se mexe.</p></header>
+
+    <article class="decision" data-id="D4">
+      <div class="top"><span class="id">D4</span><h3>A sociedade da magia</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Um povo que evoluiu na magia, não na tecnologia. Nada de pólvora nem de máquina. Armas medievais e magia. A capital brilha com runas no lugar de neon.</p></div>
+    </article>
+
+    <article class="decision" data-id="D5">
+      <div class="top"><span class="id">D5</span><h3>Visual</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Pixel art com visão de cima, em grade, no estilo Fire Emblem do Game Boy Advance.</p>
+        <p>Na V1 usamos arte livre (pacotes CC0 e LPC). Depois vem arte própria com estilo bem definido, talvez isométrica, no estilo Dofus.</p>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D6">
+      <div class="top"><span class="id">D6</span><h3>O mapa da V1</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Uma vila e duas regiões, cada uma com 4 tipos de monstro e 1 MVP. Pouco mapa, mas vivo: água correndo, vento, árvores balançando.</p>
+        <figure>
+          <div class="ftitle">Mapa da V1</div>
+          <div class="map">
+            <div class="node"><h4>Vila</h4><div class="lv">ponto de partida</div><ul><li>Loja e livros de magia</li><li>Quadro de missões</li><li>Loja de fragmentos</li></ul></div>
+            <div class="link" aria-hidden="true"></div>
+            <div class="node"><h4>Floresta élfica</h4><div class="lv">níveis 1 a 5</div><ul><li>4 monstros (2 só de noite)</li><li>Rio e cachoeira</li><li class="mvp">MVP: Ent Ancião</li></ul></div>
+            <div class="link" aria-hidden="true"></div>
+            <div class="node"><h4>Ruínas</h4><div class="lv">níveis 6 a 10</div><ul><li>4 monstros (2 só de noite)</li><li>Runas antigas que ainda brilham</li><li class="mvp">MVP: Golem Rúnico</li></ul></div>
+          </div>
+          <figcaption>Nomes de monstros e MVPs são provisórios. Quantos monstros só aparecem de noite ainda é proposta.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D7">
+      <div class="top"><span class="id">D7</span><h3>Dia e noite</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Um dia inteiro dura 24 minutos reais. A noite muda o jogo: aparecem monstros que só saem no escuro, e os agressivos ganham atributos e resistências diferentes.</p>
+        <p>Sem fome, sem sede e sem tocha que acaba.</p>
+        <figure>
+          <div class="ftitle">Duas horas de jogo</div>
+          <div class="cycle" role="img" aria-label="Linha do tempo de 120 minutos com dia e noite alternando a cada 12 minutos e o MVP nascendo nos minutos 0, 40, 80 e 120">
+            <div class="track">
+              <span class="seg-d"></span><span class="seg-n"></span><span class="seg-d"></span><span class="seg-n"></span><span class="seg-d"></span>
+              <span class="seg-n"></span><span class="seg-d"></span><span class="seg-n"></span><span class="seg-d"></span><span class="seg-n"></span>
+            </div>
+            <span class="mk" style="left:0%">MVP</span>
+            <span class="mk" style="left:33.333%">MVP</span>
+            <span class="mk" style="left:66.666%">MVP</span>
+            <span class="mk" style="left:100%">MVP</span>
+            <div class="ticks"><span>0 min</span><span>40</span><span>80</span><span>120</span></div>
+          </div>
+          <div class="keys"><span><i class="sw" style="background:var(--day)"></i>dia</span><span><i class="sw" style="background:var(--night)"></i>noite</span><span><i class="sw" style="background:var(--r-mvp)"></i>MVP renasce</span></div>
+          <figcaption>Como 40 não é múltiplo de 24, o MVP nasce ora de dia, ora de noite. Metade dia e metade noite é proposta, a divisão exata ainda vai ser testada.</figcaption>
+        </figure>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="heroi">
+  <div class="wrap">
+    <header><h2>Herói</h2><p>Raça, classe, aparência e a ficha.</p></header>
+
+    <article class="decision" data-id="D8">
+      <div class="top"><span class="id">D8</span><h3>Quatro raças</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Humano, Elfo, Abissal e Orc. Cada raça tem uma vantagem e uma desvantagem, pagas com os mesmos pontos do 3D&amp;T, pra nenhuma ficar forte demais.</p>
+        <p>As opções de cada raça estão em <a href="#votos">Votos</a>, junto com a 5ª raça.</p>
+        <div class="cards two">
+          <div class="card"><div class="head"><span class="emb" style="background:#c9a77a;color:#2a1d0e">H</span><div><h4>Humano</h4><div class="role">a régua de comparação</div></div></div></div>
+          <div class="card"><div class="head"><span class="emb" style="background:#7fc79a;color:#0d2a18">E</span><div><h4>Elfo</h4><div class="role">filho da floresta</div></div></div></div>
+          <div class="card"><div class="head"><span class="emb" style="background:#c8463a;color:#2a0805">A</span><div><h4>Abissal</h4><div class="role">sangue de demônio, coração da luz</div></div></div><p class="dim" style="margin:0">Nasce com chifres e pele vermelha, foi criado por uma ordem sagrada e luta do lado da luz. Se a magia evoluiu tanto, alguém abriu portas que não devia.</p><span class="credit">Ideia do Murilo</span></div>
+          <div class="card"><div class="head"><span class="emb" style="background:#8a9a5b;color:#161b06">O</span><div><h4>Orc</h4><div class="role">força bruta</div></div></div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D9">
+      <div class="top"><span class="id">D9</span><h3>Quatro classes</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Cura e suporte ficam pra depois. Na V1, cura é poção.</p>
+        <div class="cards two">
+          <div class="card"><div class="head"><span class="emb" style="background:#d06b4f;color:#2a0d05">G</span><div><h4>Guerreiro</h4><div class="role">corpo a corpo</div></div></div><p class="dim" style="margin:0">Duas builds de verdade: tanque (espada e escudo) ou dano (montante).</p></div>
+          <div class="card"><div class="head"><span class="emb" style="background:#7fb36a;color:#0f2208">C</span><div><h4>Caçador</h4><div class="role">arco, alcance longo</div></div></div><p class="dim" style="margin:0">Posição é tudo: flechas que empurram, prendem e atravessam.</p></div>
+          <div class="card"><div class="head"><span class="emb" style="background:#7b8cff;color:#0b1033">M</span><div><h4>Mago</h4><div class="role">área e controle</div></div></div><p class="dim" style="margin:0">Bate em grupo, mas gasta Mana, tem pouca armadura e magia forte recarrega. Não é a classe mais forte do jogo (ver D15).</p></div>
+          <div class="card"><div class="head"><span class="emb" style="background:var(--rune);color:#06261f">P</span><div><h4>Pistoleiro Rúnico</h4><div class="role">alcance médio, rajadas</div></div></div><p class="dim" style="margin:0">A pistola é um foco mágico de cristal que dispara runas. Tambor de 6 tiros, e recarregar gasta PA. Jeito de pistoleiro, natureza de magia.</p></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D10">
+      <div class="top"><span class="id">D10</span><h3>Aparência e heróis</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Personalização simples: corpo, pele, cabelo e cor. Nada de editor gigante. Você pode criar vários heróis, mas joga com um por vez.</p></div>
+    </article>
+
+    <article class="decision" data-id="D11">
+      <div class="top"><span class="id">D11</span><h3>Ficha do personagem</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Uma tela de ficha no estilo do 3D&amp;T. Exemplo de como ela fica:</p>
+        <div class="ficha" role="img" aria-label="Exemplo de ficha: Brakka, Orc Guerreira, nível 4">
+          <h4>Brakka</h4>
+          <div class="who2">Orc · Guerreira · nível 4 · build de dano</div>
+          <div class="grid">
+            <div class="at"><b>3</b><span>F</span></div>
+            <div class="at"><b>2</b><span>H</span></div>
+            <div class="at"><b>3</b><span>R</span></div>
+            <div class="at"><b>2</b><span>A</span></div>
+            <div class="at"><b>0</b><span>PdF</span></div>
+          </div>
+          <div class="bars">
+            <div class="bar"><span>Vida</span><span>15</span></div>
+            <div class="bar"><span>Mana</span><span>15</span></div>
+            <div class="bar"><span>PA</span><span>6</span></div>
+            <div class="bar"><span>PM</span><span>3</span></div>
+          </div>
+          <div class="lbl">Equipamento</div>
+          <div class="slots">
+            <div class="slot"><i>Elmo</i>Elmo de couro <span class="rar c">comum</span></div>
+            <div class="slot"><i>Armadura</i>Cota de malha <span class="rar r">raro</span></div>
+            <div class="slot"><i>Sapato</i>Botas da trilha <span class="rar c">comum</span></div>
+            <div class="slot"><i>Arma</i>Montante de ferro <span class="rar c">comum</span></div>
+            <div class="slot empty"><i>Escudo</i>ocupado pelo montante</div>
+            <div class="slot"><i>Acessório 1</i>Anel do lobo <span class="rar e">épico</span></div>
+            <div class="slot empty"><i>Acessório 2</i>vazio</div>
+          </div>
+          <div class="lbl">Grimório · 6 espaços</div>
+          <div class="grim">
+            <div class="slot">Golpe pesado<br><b>3 PA</b></div>
+            <div class="slot">Investida<br><b>4 PA</b></div>
+            <div class="slot">Grito de guerra<br><b>2 PA</b></div>
+            <div class="slot empty">vazio</div>
+            <div class="slot empty">vazio</div>
+            <div class="slot empty">vazio</div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="combate">
+  <div class="wrap">
+    <header><h2>Combate</h2><p>Tático, em grade, cada turno uma decisão.</p></header>
+
+    <article class="decision" data-id="D12">
+      <div class="top"><span class="id">D12</span><h3>Combate tático em grade</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>O mundo e a luta são telas separadas, como no Dofus. Na luta, cada turno você tem <b>PA</b> (pontos de ação) pra agir e <b>PM</b> (pontos de movimento) pra andar. A magia gasta <b>Mana</b>. Um herói por luta.</p>
+        <figure>
+          <div class="ftitle">Um turno da Brakka</div>
+          <svg class="gridsvg" id="grid" viewBox="0 0 324 216" role="img" aria-label="Grade de combate: a heroína à esquerda, área azul de movimento, um lobo ao centro e um arqueiro inimigo à direita com seu alcance em vermelho"></svg>
+          <div class="keys" style="margin-top:10px">
+            <span><i class="sw" style="background:#5a88a3"></i>onde ela chega com 3 PM</span>
+            <span><i class="sw" style="background:transparent;border-color:var(--red)"></i>alcance do arqueiro inimigo</span>
+            <span><i class="sw" style="background:#2d6a8a"></i>água</span>
+            <span><i class="sw" style="background:#2f5a2a"></i>árvore</span>
+          </div>
+          <p style="margin-top:12px">Ela tem 6 PA. Golpe pesado custa 3, então dá pra bater duas vezes, ou bater uma e gritar.</p>
+          <div class="pa" aria-label="6 PA, 3 usados"><span class="used"></span><span class="used"></span><span class="used"></span><span></span><span></span><span></span></div>
+          <figcaption>Ficar fora do vermelho custa movimento. Entrar nele pra pegar o lobo é um risco. Essa é a graça.</figcaption>
+        </figure>
+        <figure>
+          <div class="ftitle">A conta de cada ataque</div>
+          <div class="formula">
+            <div><code>Ataque = F + H + 1d6</code> corpo a corpo, ou PdF no lugar de F à distância</div>
+            <div><code>Defesa = A + H + 1d6</code></div>
+            <div><code>Dano = Ataque − Defesa</code></div>
+          </div>
+          <figcaption>Exemplo: Brakka (F3, H2) tira 4 no dado, ataque 9. O lobo (A1, H2) tira 3, defesa 6. Dano 3. A fase monta o grupo de monstros com a mesma soma de pontos do seu herói, por isso fase repetida nunca fica fácil demais.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D13">
+      <div class="top"><span class="id">D13</span><h3>Monstros passivos e agressivos</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>No mapa, o agressivo te enxerga de longe e corre atrás. Encostou, começa a luta. O passivo só luta se você atacar. Na luta, cada ataque de monstro tem alcance e tempo de recarga, então dá pra ler o padrão e se esquivar.</p></div>
+    </article>
+
+    <article class="decision" data-id="D14">
+      <div class="top"><span class="id">D14</span><h3>Habilidades e livros de magia</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Cada classe ganha habilidades ao subir de nível. Livros de magia (na loja e de drop) ensinam variações, como uma bola de fogo que deixa o chão queimando ou uma flecha que empurra. Só 6 vão pra luta, no grimório. É aí que nasce a sua build.</p></div>
+    </article>
+
+    <article class="decision" data-id="D15">
+      <div class="top"><span class="id">D15</span><h3>Sem build meta</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p><b>A regra mais importante do jogo.</b> Classes, estilos (tanque, dano, controle) e habilidades equilibrados entre si. Míssil mágico e bola de fogo rendem o mesmo por PA, de jeitos diferentes. Toda classe joga diferente, nenhuma é obrigatória.</p>
+        <p>Como a gente prova: um simulador roda milhares de lutas de cada build contra os mesmos monstros, nível a nível. Nenhuma pode vencer mais de 5 pontos percentuais acima das outras. E atributo acima de 5 rende menos, pra ninguém empilhar tudo num só.</p>
+        <figure>
+          <div class="ftitle">Como o simulador lê o equilíbrio</div>
+          <div class="bal" id="bal"></div>
+          <figcaption>Ilustração da regra, não resultado real. A faixa verde é a zona permitida (45% a 55% de vitórias). Build fora dela volta pra mesa.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D16">
+      <div class="top"><span class="id">D16</span><h3>Duas mãos ou escudo</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Arma de duas mãos ocupa o espaço do escudo. É a escolha entre dano e defesa: Guerreiro de espada e escudo segura a linha, Guerreiro de montante bate forte.</p></div>
+    </article>
+  </div>
+</section>
+
+<section id="progressao">
+  <div class="wrap">
+    <header><h2>Progressão</h2><p>Subir de nível, itens, MVP, missões, ouro e música.</p></header>
+
+    <article class="decision" data-id="D17">
+      <div class="top"><span class="id">D17</span><h3>Subir de nível é desafio</h3><span class="tag v1">V1: níveis 1 a 10</span></div>
+      <div class="body">
+        <p>O nível 30 leva cerca de 150 horas. Os primeiros níveis são rápidos, depois cada um pede mais. A V1 vai do nível 1 ao 10.</p>
+        <p>Morreu: volta pra vila, perde 5% do XP do nível atual (nunca cai de nível) e perde o saque daquela luta. Dói, mas não apaga uma noite inteira.</p>
+        <figure>
+          <div class="ftitle">Horas de jogo até cada nível</div>
+          <svg class="chart" id="curve" viewBox="0 0 340 210" role="img" aria-label="Curva de horas acumuladas por nível: nível 5 em cerca de 4 horas, nível 10 em cerca de 18 horas, nível 30 em 150 horas"></svg>
+          <div class="stats"><span class="stat"><b>~4 h</b>nível 5</span><span class="stat"><b>~18 h</b>nível 10</span><span class="stat"><b>150 h</b>nível 30</span></div>
+          <figcaption>Proposta inicial. O simulador ajusta a curva com o jogo de verdade.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D18">
+      <div class="top"><span class="id">D18</span><h3>Itens</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Item de status fixo, pra comparar de cabeça. Sete espaços: elmo, armadura, sapato, arma, escudo e dois acessórios. Refino fica pra depois.</p>
+        <div class="chips-r" aria-label="Quatro raridades">
+          <span style="color:var(--r-comum)">Comum</span>
+          <span style="color:var(--r-raro)">Raro</span>
+          <span style="color:var(--r-epico)">Épico</span>
+          <span style="color:var(--r-mvp)">MVP</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D19">
+      <div class="top"><span class="id">D19</span><h3>MVP</h3><span class="tag v1">V1</span></div>
+      <div class="body">
+        <p>Chefe raro que renasce a cada 40 minutos reais no mesmo lugar. Azar não trava ninguém:</p>
+        <figure>
+          <div class="ftitle">Do MVP ao item</div>
+          <div class="flow">
+            <div class="st"><b>40 min</b>o MVP renasce</div>
+            <div class="ar" aria-hidden="true"></div>
+            <div class="st"><b>Vitória</b>luta em grade, com fases</div>
+            <div class="ar" aria-hidden="true"></div>
+            <div class="st"><b>5% de chance</b>do item MVP<br>e sempre <b style="display:inline">+1 fragmento</b></div>
+            <div class="ar" aria-hidden="true"></div>
+            <div class="st"><b>10 fragmentos</b>compram o item na loja<div class="frag" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+          </div>
+          <figcaption>No pior azar, 10 vitórias garantem o item. Com sorte, vem antes.</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="decision" data-id="D20">
+      <div class="top"><span class="id">D20</span><h3>Missões</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Um quadro na vila com caçadas e coletas, que dá motivo pra repetir fase. E um fio curto de história por região, pra dar cara ao mundo sem textão.</p></div>
+    </article>
+
+    <article class="decision" data-id="D21">
+      <div class="top"><span class="id">D21</span><h3>Economia</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Só ouro do jogo. Nada de dinheiro real na V1. O ouro já nasce com teto (por dia e por item), pra nunca desequilibrar ninguém. Gacha: nunca.</p></div>
+    </article>
+
+    <article class="decision" data-id="D22">
+      <div class="top"><span class="id">D22</span><h3>Trilha sonora</h3><span class="tag v1">V1</span></div>
+      <div class="body"><p>Pegada Senhor dos Anéis. Na V1, músicas livres pra 5 momentos: vila, floresta, ruínas, combate e MVP. O Ricardo escolhe no ouvido entre 3 opções de cada. Trilha própria depois.</p></div>
+    </article>
+  </div>
+</section>
+
+<section id="depois">
+  <div class="wrap">
+    <header><h2>Depois da V1</h2><p>Já está no radar, mas só entra quando a V1 provar que diverte.</p></header>
+    <ul class="later">
+      <li><b>Jogar junto.</b> Primeiro cada um no seu, depois heróis juntos, até no mesmo combate.</li>
+      <li><b>Masmorra roguelike (V2).</b> Andares sorteados, cada vez mais difíceis, com recompensa que volta pro herói. O fim de jogo.</li>
+      <li><b>Cura e suporte.</b> Uma classe de apoio.</li>
+      <li><b>Arte própria.</b> Estilo definido, talvez isométrico.</li>
+      <li><b>Refino de itens.</b> Se vocês pedirem.</li>
+      <li><b>Celular.</b> A V1 já nasce com botões grandes pensando nisso.</li>
+      <li><b>5ª raça.</b> Vocês votam abaixo.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="votos">
+  <div class="wrap">
+    <header><h2>Votos</h2><p>Escolha uma opção em cada bloco. Pode pular o que não tiver opinião.</p></header>
+
+    <div class="vote">
+      <h3>Nome do jogo</h3>
+      <div class="opts" data-vote="nome">
+        <label class="opt"><input type="radio" name="nome" value="Runaria"><span><b>Runaria</b><span class="neg">a terra das runas</span></span></label>
+        <label class="opt"><input type="radio" name="nome" value="Véu de Éter"><span><b>Véu de Éter</b><span class="neg">a magia que cobre o mundo</span></span></label>
+        <label class="opt"><input type="radio" name="nome" value="Coroa de Runas"><span><b>Coroa de Runas</b><span class="neg">quem domina as runas, governa</span></span></label>
+        <label class="opt"><input type="radio" name="nome" value="outro"><span><b>Outro nome</b><span class="neg">escreva abaixo</span></span></label>
+      </div>
+      <input type="text" id="nome-outro" placeholder="Sua sugestão de nome" style="margin-top:8px">
+    </div>
+
+    <div class="vote">
+      <h3>Quinta raça</h3>
+      <div class="opts" data-vote="raca5">
+        <label class="opt"><input type="radio" name="raca5" value="Anão"><span><b>Anão</b><span class="neg">baixo, teimoso, nasce de armadura</span></span></label>
+        <label class="opt"><input type="radio" name="raca5" value="Troll"><span><b>Troll</b><span class="neg">enorme, regenera, lento</span></span></label>
+        <label class="opt"><input type="radio" name="raca5" value="Só 4 bastam"><span><b>Só 4 bastam</b><span class="neg">melhor caprichar nas que já tem</span></span></label>
+      </div>
+    </div>
+
+    <div class="vote">
+      <h3>Humano</h3>
+      <div class="opts" data-vote="humano">
+        <label class="opt"><input type="radio" name="humano" value="A"><span><b>A · Versátil</b>+1 ponto pra gastar onde quiser<span class="neg">Desvantagem: nenhuma, o humano é a régua</span></span></label>
+        <label class="opt"><input type="radio" name="humano" value="B"><span><b>B · Aprende rápido</b>+10% de XP<span class="neg">Desvantagem: nenhuma, o humano é a régua</span></span></label>
+      </div>
+    </div>
+
+    <div class="vote">
+      <h3>Elfo</h3>
+      <div class="opts" data-vote="elfo">
+        <label class="opt"><input type="radio" name="elfo" value="A"><span><b>A · Olhos da lua</b>enxerga de noite como de dia<span class="neg">Desvantagem: −1 em R na criação (menos Vida)</span></span></label>
+        <label class="opt"><input type="radio" name="elfo" value="B"><span><b>B · Mira élfica</b>+1 de alcance com arco e magia<span class="neg">Desvantagem: armadura pesada custa 1 PM</span></span></label>
+      </div>
+    </div>
+
+    <div class="vote">
+      <h3>Abissal <span class="credit" style="font-family:var(--text);font-size:.85rem">ideia do Murilo</span></h3>
+      <div class="opts" data-vote="abissal">
+        <label class="opt"><input type="radio" name="abissal" value="A"><span><b>A · Sangue do abismo</b>fogo e sombra causam metade do dano<span class="neg">Desvantagem: a luz que ele serve também o queima (dano sagrado +50%)</span></span></label>
+        <label class="opt"><input type="radio" name="abissal" value="B"><span><b>B · Fúria infernal</b>abaixo de 30% de Vida, +2 em F<span class="neg">Desvantagem: monstros agressivos o sentem de mais longe</span></span></label>
+      </div>
+    </div>
+
+    <div class="vote">
+      <h3>Orc</h3>
+      <div class="opts" data-vote="orc">
+        <label class="opt"><input type="radio" name="orc" value="A"><span><b>A · Brutamontes</b>+1 em F e +10% de Vida<span class="neg">Desvantagem: −1 em H</span></span></label>
+        <label class="opt"><input type="radio" name="orc" value="B"><span><b>B · Couro grosso</b>+1 em A<span class="neg">Desvantagem: −20% de Mana</span></span></label>
+      </div>
+    </div>
+
+    <div class="vote">
+      <h3>Ideia livre</h3>
+      <p class="dim" style="margin-top:0">Algo que faltou? Classe, monstro, mecânica, história, qualquer coisa.</p>
+      <textarea id="ideias" placeholder="Escreva aqui"></textarea>
+    </div>
+  </div>
+</section>
+
+<section id="enviar">
+  <div class="wrap">
+    <div class="send">
+      <h2>Enviar</h2>
+      <p>Suas respostas viram uma mensagem numerada. Toque no botão verde e escolha o Ricardo ou o grupo.</p>
+      <textarea id="preview" readonly aria-label="Prévia da mensagem"></textarea>
+      <div class="btns">
+        <button class="btn wa" id="wa" type="button">Enviar pelo WhatsApp</button>
+        <button class="btn cp" id="cp" type="button">Copiar</button>
+      </div>
+      <div class="status" id="status" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Regras inspiradas no 3D&amp;T Alpha. Mundo, nome e conteúdo próprios. Arte da V1 em pacotes livres (CC0 e LPC), com créditos no jogo.</p>
+    <p>Depois das respostas, as divergências viram a próxima rodada de decisões.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var KEY = 'projeto-rpg-v1';
+  var state = {d:{}, txt:{}, votes:{}, nome:'', nomeOutro:'', ideias:''};
+  try { var raw = localStorage.getItem(KEY); if (raw) { var s = JSON.parse(raw); for (var k in s) state[k] = s[k]; } } catch(e) {}
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} render(); }
+
+  var decisions = Array.prototype.slice.call(document.querySelectorAll('.decision'));
+  var TOTAL = decisions.length;
+
+  decisions.forEach(function(el){
+    var id = el.getAttribute('data-id');
+    var box = document.createElement('div');
+    box.className = 'answer';
+    box.innerHTML =
+      '<div class="seg" role="group" aria-label="Sua resposta para ' + id + '">' +
+        '<button type="button" class="ok" aria-pressed="false">Concordo</button>' +
+        '<button type="button" class="mud" aria-pressed="false">Mudaria</button>' +
+      '</div>' +
+      '<textarea aria-label="O que você mudaria em ' + id + ' e por quê" placeholder="O que você mudaria e por quê?"></textarea>';
+    el.appendChild(box);
+    var ok = box.querySelector('.ok'), mud = box.querySelector('.mud'), ta = box.querySelector('textarea');
+    function paint(){
+      var v = state.d[id];
+      ok.setAttribute('aria-pressed', v === 'ok' ? 'true' : 'false');
+      mud.setAttribute('aria-pressed', v === 'mud' ? 'true' : 'false');
+      box.classList.toggle('show-txt', v === 'mud');
+      if (document.activeElement !== ta) ta.value = state.txt[id] || '';
+    }
+    ok.addEventListener('click', function(){ state.d[id] = state.d[id] === 'ok' ? undefined : 'ok'; save(); paint(); });
+    mud.addEventListener('click', function(){ state.d[id] = state.d[id] === 'mud' ? undefined : 'mud'; save(); paint(); if (state.d[id] === 'mud') ta.focus(); });
+    ta.addEventListener('input', function(){ state.txt[id] = ta.value; save(); });
+    paint();
+  });
+
+  document.querySelectorAll('.opts').forEach(function(group){
+    var name = group.getAttribute('data-vote');
+    group.querySelectorAll('input').forEach(function(inp){
+      if (state.votes[name] === inp.value) inp.checked = true;
+      inp.addEventListener('change', function(){ if (inp.checked) { state.votes[name] = inp.value; save(); } });
+    });
+  });
+
+  function bindText(id, field){
+    var el = document.getElementById(id);
+    el.value = state[field] || '';
+    el.addEventListener('input', function(){ state[field] = el.value; save(); });
+  }
+  bindText('nome', 'nome');
+  bindText('nome-outro', 'nomeOutro');
+  bindText('ideias', 'ideias');
+
+  var RACAS = {humano:'Humano', elfo:'Elfo', abissal:'Abissal', orc:'Orc'};
+
+  function message(){
+    var L = [];
+    L.push('🎲 Projeto RPG · respostas de ' + (state.nome.trim() || 'sem nome'));
+    L.push('');
+    var faltam = [];
+    decisions.forEach(function(el){
+      var id = el.getAttribute('data-id'), v = state.d[id];
+      if (v === 'ok') L.push(id + ' ✅');
+      else if (v === 'mud') L.push(id + ' ✏️ ' + ((state.txt[id] || '').trim() || '(mudaria, sem detalhe)'));
+      else faltam.push(id);
+    });
+    if (faltam.length) L.push('Sem resposta: ' + faltam.join(', '));
+    L.push('');
+    L.push('Votos');
+    var nome = state.votes.nome === 'outro' ? ('outro: ' + (state.nomeOutro.trim() || 'sem sugestão')) : (state.votes.nome || '');
+    L.push('Nome do jogo: ' + (nome || 'não votou'));
+    L.push('5ª raça: ' + (state.votes.raca5 || 'não votou'));
+    Object.keys(RACAS).forEach(function(k){ L.push(RACAS[k] + ': ' + (state.votes[k] ? 'opção ' + state.votes[k] : 'não votou')); });
+    if ((state.ideias || '').trim()) { L.push(''); L.push('Ideia livre: ' + state.ideias.trim()); }
+    return L.join('\n');
+  }
+
+  var prev = document.getElementById('preview'), prog = document.getElementById('prog');
+  function render(){
+    var n = 0; decisions.forEach(function(el){ if (state.d[el.getAttribute('data-id')]) n++; });
+    prog.textContent = n + '/' + TOTAL;
+    prev.value = message();
+  }
+
+  document.getElementById('wa').addEventListener('click', function(){
+    window.open('https://wa.me/?text=' + encodeURIComponent(message()), '_blank');
+  });
+  var status = document.getElementById('status');
+  document.getElementById('cp').addEventListener('click', function(){
+    var t = message();
+    function done(){ status.textContent = 'Copiado. Cole no WhatsApp.'; setTimeout(function(){ status.textContent = ''; }, 3000); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(done, function(){ prev.select(); document.execCommand('copy'); done(); });
+    } else { prev.select(); document.execCommand('copy'); done(); }
+  });
+
+  /* grade de combate */
+  (function(){
+    var svg = document.getElementById('grid'), NS = 'http://www.w3.org/2000/svg';
+    var C = 9, R = 6, S = 36;
+    var water = {'7,0':1,'8,0':1,'8,1':1}, tree = {'3,0':1,'3,1':1,'4,4':1,'6,5':1,'0,0':1};
+    var hero = [1,3], wolf = [5,2], archer = [7,4];
+    function rect(x,y,w,h,fill,stroke,sw){ var r = document.createElementNS(NS,'rect'); r.setAttribute('x',x); r.setAttribute('y',y); r.setAttribute('width',w); r.setAttribute('height',h); r.setAttribute('fill',fill); if (stroke){ r.setAttribute('stroke',stroke); r.setAttribute('stroke-width',sw||1);} svg.appendChild(r); return r; }
+    function text(x,y,t,fill,size){ var e = document.createElementNS(NS,'text'); e.setAttribute('x',x); e.setAttribute('y',y); e.setAttribute('fill',fill); e.setAttribute('font-size',size||13); e.setAttribute('font-family','Pixelify Sans, monospace'); e.setAttribute('font-weight','700'); e.setAttribute('text-anchor','middle'); e.setAttribute('dominant-baseline','central'); e.textContent = t; svg.appendChild(e); }
+    function dist(a,b){ return Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1]); }
+    for (var y = 0; y < R; y++) for (var x = 0; x < C; x++) {
+      var k = x + ',' + y, base = (x + y) % 2 ? '#3b5a33' : '#41623a';
+      if (water[k]) base = '#2d6a8a';
+      rect(x*S, y*S, S, S, base, '#2a3f25', 1);
+      if (tree[k]) { rect(x*S+8, y*S+5, 20, 18, '#2f5a2a'); rect(x*S+10, y*S+7, 8, 6, '#3f7a36'); rect(x*S+15, y*S+23, 6, 8, '#6b4a2a'); }
+      if (water[k]) { rect(x*S+6, y*S+12, 10, 3, '#5fa8c8'); rect(x*S+20, y*S+22, 10, 3, '#5fa8c8'); }
+      var free = !water[k] && !tree[k] && !(x===wolf[0]&&y===wolf[1]) && !(x===archer[0]&&y===archer[1]);
+      var d = dist([x,y], hero);
+      if (free && d > 0 && d <= 3) rect(x*S+2, y*S+2, S-4, S-4, 'rgba(111,169,255,.55)');
+      var da = dist([x,y], archer);
+      if (da >= 2 && da <= 4 && !water[k]) rect(x*S+3, y*S+3, S-6, S-6, 'none', '#ef7a62', 2);
+    }
+    function token(p, bg, fg, label){ rect(p[0]*S+5, p[1]*S+5, S-10, S-10, bg, '#000', 2); text(p[0]*S+S/2, p[1]*S+S/2+1, label, fg, 15); }
+    token(hero, '#e8bd62', '#1b1408', 'B');
+    token(wolf, '#9aa0a8', '#15171a', 'L');
+    token(archer, '#ef7a62', '#2a0d05', 'A');
+  })();
+
+  /* equilíbrio */
+  (function(){
+    var rows = [['Guerreiro',50],['Caçador',52],['Mago',48],['Pistoleiro',51]];
+    var html = '';
+    rows.forEach(function(r){
+      html += '<div class="row"><span>' + r[0] + '</span><div class="tr"><div class="band"></div><div class="fill" style="width:' + r[1] + '%"></div></div><span class="v">' + r[1] + '%</span></div>';
+    });
+    document.getElementById('bal').innerHTML = html;
+  })();
+
+  /* curva de nível */
+  (function(){
+    var svg = document.getElementById('curve'), NS = 'http://www.w3.org/2000/svg';
+    var W = 340, H = 210, l = 44, r = 14, t = 14, b = 34;
+    function X(n){ return l + (n-1) / 29 * (W - l - r); }
+    function Y(h){ return t + (1 - h / 150) * (H - t - b); }
+    function hours(n){ return 150 * Math.pow((n-1) / 29, 1.8); }
+    function el(name, attrs, txt){ var e = document.createElementNS(NS, name); for (var a in attrs) e.setAttribute(a, attrs[a]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+    el('rect', {x:X(1), y:t, width:X(10)-X(1), height:H-t-b, fill:'rgba(127,220,198,.12)'});
+    el('text', {x:(X(1)+X(10))/2, y:t+14, fill:'#7fdcc6', 'font-size':12, 'font-family':'Pixelify Sans, monospace', 'text-anchor':'middle'}, 'V1');
+    [0,50,100,150].forEach(function(h){
+      el('line', {x1:l, x2:W-r, y1:Y(h), y2:Y(h), stroke:'#2f3f34', 'stroke-width':1});
+      el('text', {x:l-8, y:Y(h), fill:'#bdb6a4', 'font-size':11, 'text-anchor':'end', 'dominant-baseline':'central', 'font-family':'Nunito, sans-serif'}, h + ' h');
+    });
+    [1,5,10,20,30].forEach(function(n){
+      el('text', {x:X(n), y:H-b+16, fill:'#bdb6a4', 'font-size':11, 'text-anchor':'middle', 'font-family':'Nunito, sans-serif'}, n);
+    });
+    el('text', {x:(l+W-r)/2, y:H-4, fill:'#8f8a7c', 'font-size':11, 'text-anchor':'middle', 'font-family':'Nunito, sans-serif'}, 'nível');
+    var pts = []; for (var n = 1; n <= 30; n++) pts.push(X(n).toFixed(1) + ',' + Y(hours(n)).toFixed(1));
+    el('polyline', {points:pts.join(' '), fill:'none', stroke:'#e8bd62', 'stroke-width':3, 'stroke-linejoin':'round'});
+    [5,10,30].forEach(function(n){
+      var cx = X(n), cy = Y(hours(n));
+      el('rect', {x:cx-4, y:cy-4, width:8, height:8, fill:'#e8bd62', stroke:'#0e1310', 'stroke-width':2});
+    });
+  })();
+
+  render();
+})();
+</script>
+</body>
+</html>
